@@ -1,0 +1,40 @@
+2017.06.01
+
+examples.
+
+2017.01.15
+
+Informative errors when type.list is unusual.
+
+2015.12.01
+
+Coveralls badge, 100% test coverage via jimhester/covr.
+
+2015.10.20
+
+str_match_named was sometimes incorrectly issuing a warning when given
+NA subjects, but this is now fixed.
+
+When type.list is supplied, data.frame(stringsAsFactors=FALSE) is now
+used to create the data.frame from the character match groups
+matrix. This allows simple numerical conversions using functions like
+as.numeric and as.integer (before, we got unexpected results since
+those functions take the factor ID number).
+
+2015.10.15
+
+Test optional groups, set NA before calling substring to avoid "NAs
+introduced by coercion" warning.
+
+2015.10.07
+
+stop with informative errors for pathological subjects and patterns.
+
+2015.10.05
+
+first version forked from str_match*perl in my .Rprofile. There are
+several differences: 
+- the "name" group is used for rownames, 
+- the entire match is not returned (only the groups),
+- str_match_named is vectorized (str_match_perl was not),
+- names are taken from subject if present.

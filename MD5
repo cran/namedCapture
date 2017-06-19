@@ -1,0 +1,14 @@
+ca6e15f01de1236aeaf5a97b68f7775a *DESCRIPTION
+8b54e5a89fbda3af5e077053d40bec76 *NAMESPACE
+361276dfb203bc312211a8a880b016ea *NEWS
+ebb5a6964892fb9a5700d0fdc5c44c87 *R/str_match.R
+6580ae7a2a2c52c06eba116255063231 *man/apply_type_funs.Rd
+7b0e4ded7c590b044326dd8b906a10c6 *man/names_or_error.Rd
+f9884e322eeda6d3494bb58c3fdeac5e *man/str_match_all_named.Rd
+543e7b7e8f8f2d95583f98b3b1fba850 *man/str_match_named.Rd
+341d1f4bbbc4530e77a93deb21cf054b *tests/testthat.R
+c0829050d042be261fd1ee385e89e083 *tests/testthat/test-NA.R
+bbdf1f503f23cddfcf549989d35ece93 *tests/testthat/test-chr-pos.R
+f2d29d6a192bfcdfe52ba30bde0f0e1a *tests/testthat/test-errors.R
+f638a436f2b55e6e86939c85292b2c27 *tests/testthat/test-name-value.R
+e34d971b69cdd999b14f14d64da57ad2 *tests/testthat/test-optional-groups.R
