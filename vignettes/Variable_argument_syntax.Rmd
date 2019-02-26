@@ -26,12 +26,12 @@ subject.vec <- c(
   NA, # neither will this.
   "chr1:110-111 chr2:220-222") # two possible matches.
 chr.pos.pattern <- paste0(
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]*)",
+    "(?P<chromEnd>[0-9,]*)",
   ")?")
 namedCapture::str_match_named(subject.vec, chr.pos.pattern)
 ```
@@ -41,16 +41,16 @@ Note that the pattern above is defined using the `paste0` boilerplate, which is 
 ```{r}
 namedCapture::str_match_variable(
   subject.vec, 
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]+)",
+    "(?P<chromEnd>[0-9,]+)",
   ")?")
 ```
 
-We can further simplify by removing the named capture groups from the strings, and adding names to the corresponding arguments. For `name1="pattern1"`, `namedCapture` internally generates/uses the regex `(?<name1>pattern1)`.
+We can further simplify by removing the named capture groups from the strings, and adding names to the corresponding arguments. For `name1="pattern1"`, `namedCapture` internally generates/uses the regex `(?P<name1>pattern1)`.
 
 ```{r}
 namedCapture::str_match_variable(
@@ -109,17 +109,18 @@ namedCapture::str_match_variable(
   ), "?")
 ```
 
-In summary, the `str_match_variable` function takes a variable number of arguments, and allow for a shorter, less repetitive, and thus more user-friendly syntax:
-- The first argument is the subject character vector.
-- The other arguments specify the pattern, via character strings,
+In summary, the `str_match_variable` function takes a variable number of arguments, and allows for a shorter, less repetitive, and thus more user-friendly syntax:
+
+* The first argument is the subject character vector.
+* The other arguments specify the pattern, via character strings,
   functions, and/or lists.
-- If a pattern (character/list) is named, we use the argument name in R for the capture
+* If a pattern (character/list) is named, we use the argument name in R for the capture
   group name in the regex.
-- Each function is used to convert the text extracted by the previous
+* Each function is used to convert the text extracted by the previous
   named pattern argument. (type conversion can only be used with named R arguments, NOT with explicitly specified named groups in regex strings)
-- Lists may be used to avoid repetition in the definition of the pattern and type conversion functions.
-- Each list generates a group in the regex (named list => named capture group, un-named list => non-capturing group).
-- All patterns are pasted together in the order that they appear in
+* Lists may be used to avoid repetition in the definition of the pattern and type conversion functions.
+* Each list generates a group in the regex (named list => named capture group, un-named list => non-capturing group).
+* All patterns are pasted together in the order that they appear in
   the argument list.
 
 ## Extract all patterns from a file
@@ -170,9 +171,9 @@ value. That regex is coded below:
 fields.list <- namedCapture::str_match_all_named(
   fields.df[, "fields"], paste0(
     "\\s+",
-    "(?<name>.*?)",
+    "(?P<name>.*?)",
     " ",
-    "(?<value>[^\n]+)"))
+    "(?P<value>[^\n]+)"))
 ```
 
 Note that we used

@@ -12,24 +12,24 @@ subject.vec <- c(
   NA, # neither will this.
   "chr1:110-111 chr2:220-222") # two possible matches.
 chr.pos.pattern <- paste0(
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]*)",
+    "(?P<chromEnd>[0-9,]*)",
   ")?")
 namedCapture::str_match_named(subject.vec, chr.pos.pattern)
 
 ## ------------------------------------------------------------------------
 namedCapture::str_match_variable(
   subject.vec, 
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]+)",
+    "(?P<chromEnd>[0-9,]+)",
   ")?")
 
 ## ------------------------------------------------------------------------
@@ -102,9 +102,9 @@ head(fields.df)
 fields.list <- namedCapture::str_match_all_named(
   fields.df[, "fields"], paste0(
     "\\s+",
-    "(?<name>.*?)",
+    "(?P<name>.*?)",
     " ",
-    "(?<value>[^\n]+)"))
+    "(?P<value>[^\n]+)"))
 
 ## ------------------------------------------------------------------------
 fields.list[12:14]

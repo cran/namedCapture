@@ -14,12 +14,12 @@ subject.vec <- c(
 
 ## ------------------------------------------------------------------------
 chr.pos.pattern <- paste0(
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]+)",
+    "(?P<chromEnd>[0-9,]+)",
   ")?")
 
 ## ------------------------------------------------------------------------
@@ -39,12 +39,12 @@ namedCapture::str_match_all_named(
 
 ## ------------------------------------------------------------------------
 name.pattern <- paste0(
-  "(?<name>chr.*?)",
+  "(?P<name>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]+)",
+    "(?P<chromEnd>[0-9,]+)",
   ")?")
 try(named.mat <- namedCapture::str_match_named(
   subject.vec, name.pattern, conversion.list))
