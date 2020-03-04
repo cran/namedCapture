@@ -164,3 +164,92 @@ short.list$tidyr$JobID.type <- ifelse(
 with(short.list, identical(tidyr, namedCapture))
 
 
+## ------------------------------------------------------------------------
+range.list <- list(
+  "\\[",
+  task1="[0-9]+", as.integer,
+  list(
+    "-",#begin optional end of range.
+    taskN="[0-9]+", as.integer
+  ), "?", #end is optional.
+  "\\]")
+namedCapture::df_match_variable(sacct.df, JobID=range.list)
+
+range.pat <- paste0(
+  "\\[",
+  "(?<task1>[0-9]+)", 
+  "(?:",
+  "-",#begin optional end of range.
+  "(?<taskN>[0-9]+)",
+  ")?", #end is optional.
+  "\\]")
+rematch2::bind_re_match(sacct.df, JobID, range.pat)
+task.list <- list(
+  "_",
+  list(
+    task="[0-9]+", as.integer,
+    "|",#either one task(above) or range(below)
+    range.list))
+namedCapture::df_match_variable(sacct.df, JobID=task.list)
+
+task.pat <- paste0(
+  "_",
+  "(?:",
+  "(?<task>[0-9]+)", 
+  "|", #either one task(above) or range(below)
+  range.pat,
+  ")")
+rematch2::bind_re_match(sacct.df, JobID, task.pat)
+
+job.list <- list(
+  job="[0-9]+", as.integer,
+  task.list,
+  list(
+    "[.]",
+    type=".*"
+  ), "?")
+(job.namedCapture <- namedCapture::df_match_variable(sacct.df, JobID=job.list))
+
+job.pat <- paste0(
+  "(?<job>[0-9]+)", 
+  task.pat,
+  "(?:",
+  "[.]",
+  "(?<type>.*)",
+  ")?")
+(job.rematch2 <- rematch2::bind_re_match(sacct.df, JobID, job.pat))
+
+pos.namedCapture <- namedCapture::df_match_variable(
+  job.namedCapture, position=list(
+    chrom="chr.*?",
+    ":",
+    chromStart=".*?", to.int,
+    "-",
+    chromEnd="[0-9,]*", to.int))
+str(pos.namedCapture)
+
+pos.rematch2 <- rematch2::bind_re_match(
+  job.rematch2,  position, paste0(
+    "(?<chrom>chr.*?)",
+    ":",
+    "(?<chromStart>.*?)", 
+    "-",
+    "(?<chromEnd>[0-9,]*)"))
+str(pos.rematch2)
+
+
+## ------------------------------------------------------------------------
+converted.rematch2 <- transform(
+  pos.rematch2,
+  JobID.job=to.int(job),
+  JobID.task1=to.int(task1),
+  JobID.taskN=to.int(taskN),
+  JobID.task=to.int(task),
+  JobID.type=type,
+  position.chrom=chrom,
+  position.chromStart=to.int(chromStart),
+  position.chromEnd=to.int(chromEnd),
+  stringsAsFactors=FALSE)
+some.rematch2 <- converted.rematch2[, names(pos.namedCapture)]
+identical(some.rematch2, pos.namedCapture)
+

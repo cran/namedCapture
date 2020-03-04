@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-<title>Longer more readable syntax</title>
+<title>Comparing regex functions for data frames</title>
 
 <script type="text/javascript">
 window.onload = function() {
@@ -209,6 +209,8 @@ hr {
 %\VignetteIndexEntry{vignette 4: comparing regex functions for data frames}
 -->
 
+<h1>Comparing regex functions for data frames</h1>
+
 <p>In this vignette I show comparisons between
 <code>namedCapture::df_match_variable</code> and its closest cousin in the R
 package universe, <code>tidyr::extract</code>. The two packages can be used to
@@ -385,6 +387,10 @@ with(long.list, identical(tidyr, namedCapture))
 #&gt; [1] TRUE
 </code></pre>
 
+<p>Exercise for the reader use <code>rematch2::bind_re_match</code> instead of
+<code>tidyr::extract</code> (you should only have to change a few lines of code
+in the for loop).</p>
+
 <h2>Shorter less readable syntax</h2>
 
 <p>This second comparison uses a syntax with the entire regex on one
@@ -486,6 +492,189 @@ short.list$tidyr$JobID.type &lt;- ifelse(
 with(short.list, identical(tidyr, namedCapture))
 #&gt; [1] TRUE
 </code></pre>
+
+<h2>Comparison with rematch2</h2>
+
+<p><code>rematch2::bind_re_match</code> is similar to <code>tidyr::extract</code> but
+additionally supports named capture regular expressions. Overall the
+comparison shows that both packages can use a relatively verbose and
+readable syntax to define complex regular expressions piece by piece:</p>
+
+<pre><code class="r">range.list &lt;- list(
+  &quot;\\[&quot;,
+  task1=&quot;[0-9]+&quot;, as.integer,
+  list(
+    &quot;-&quot;,#begin optional end of range.
+    taskN=&quot;[0-9]+&quot;, as.integer
+  ), &quot;?&quot;, #end is optional.
+  &quot;\\]&quot;)
+namedCapture::df_match_variable(sacct.df, JobID=range.list)
+#&gt;                        position              JobID JobID.task1 JobID.taskN
+#&gt; 1 chr10:213,054,000-213,055,000        13937810_25          NA          NA
+#&gt; 2          chrM:111,000-222,000  13937810_25.batch          NA          NA
+#&gt; 3           this will not match 13937810_25.extern          NA          NA
+#&gt; 4                          &lt;NA&gt;     14022192_[1-3]           1           3
+#&gt; 5     chr1:110-111 chr2:220-222       14022204_[4]           4          NA
+
+range.pat &lt;- paste0(
+  &quot;\\[&quot;,
+  &quot;(?&lt;task1&gt;[0-9]+)&quot;, 
+  &quot;(?:&quot;,
+  &quot;-&quot;,#begin optional end of range.
+  &quot;(?&lt;taskN&gt;[0-9]+)&quot;,
+  &quot;)?&quot;, #end is optional.
+  &quot;\\]&quot;)
+rematch2::bind_re_match(sacct.df, JobID, range.pat)
+#&gt;                        position              JobID task1 taskN
+#&gt; 1 chr10:213,054,000-213,055,000        13937810_25  &lt;NA&gt;  &lt;NA&gt;
+#&gt; 2          chrM:111,000-222,000  13937810_25.batch  &lt;NA&gt;  &lt;NA&gt;
+#&gt; 3           this will not match 13937810_25.extern  &lt;NA&gt;  &lt;NA&gt;
+#&gt; 4                          &lt;NA&gt;     14022192_[1-3]     1     3
+#&gt; 5     chr1:110-111 chr2:220-222       14022204_[4]     4
+task.list &lt;- list(
+  &quot;_&quot;,
+  list(
+    task=&quot;[0-9]+&quot;, as.integer,
+    &quot;|&quot;,#either one task(above) or range(below)
+    range.list))
+namedCapture::df_match_variable(sacct.df, JobID=task.list)
+#&gt;                        position              JobID JobID.task JobID.task1
+#&gt; 1 chr10:213,054,000-213,055,000        13937810_25         25          NA
+#&gt; 2          chrM:111,000-222,000  13937810_25.batch         25          NA
+#&gt; 3           this will not match 13937810_25.extern         25          NA
+#&gt; 4                          &lt;NA&gt;     14022192_[1-3]         NA           1
+#&gt; 5     chr1:110-111 chr2:220-222       14022204_[4]         NA           4
+#&gt;   JobID.taskN
+#&gt; 1          NA
+#&gt; 2          NA
+#&gt; 3          NA
+#&gt; 4           3
+#&gt; 5          NA
+
+task.pat &lt;- paste0(
+  &quot;_&quot;,
+  &quot;(?:&quot;,
+  &quot;(?&lt;task&gt;[0-9]+)&quot;, 
+  &quot;|&quot;, #either one task(above) or range(below)
+  range.pat,
+  &quot;)&quot;)
+rematch2::bind_re_match(sacct.df, JobID, task.pat)
+#&gt;                        position              JobID task task1 taskN
+#&gt; 1 chr10:213,054,000-213,055,000        13937810_25   25            
+#&gt; 2          chrM:111,000-222,000  13937810_25.batch   25            
+#&gt; 3           this will not match 13937810_25.extern   25            
+#&gt; 4                          &lt;NA&gt;     14022192_[1-3]          1     3
+#&gt; 5     chr1:110-111 chr2:220-222       14022204_[4]          4
+
+job.list &lt;- list(
+  job=&quot;[0-9]+&quot;, as.integer,
+  task.list,
+  list(
+    &quot;[.]&quot;,
+    type=&quot;.*&quot;
+  ), &quot;?&quot;)
+(job.namedCapture &lt;- namedCapture::df_match_variable(sacct.df, JobID=job.list))
+#&gt;                        position              JobID JobID.job JobID.task
+#&gt; 1 chr10:213,054,000-213,055,000        13937810_25  13937810         25
+#&gt; 2          chrM:111,000-222,000  13937810_25.batch  13937810         25
+#&gt; 3           this will not match 13937810_25.extern  13937810         25
+#&gt; 4                          &lt;NA&gt;     14022192_[1-3]  14022192         NA
+#&gt; 5     chr1:110-111 chr2:220-222       14022204_[4]  14022204         NA
+#&gt;   JobID.task1 JobID.taskN JobID.type
+#&gt; 1          NA          NA           
+#&gt; 2          NA          NA      batch
+#&gt; 3          NA          NA     extern
+#&gt; 4           1           3           
+#&gt; 5           4          NA
+
+job.pat &lt;- paste0(
+  &quot;(?&lt;job&gt;[0-9]+)&quot;, 
+  task.pat,
+  &quot;(?:&quot;,
+  &quot;[.]&quot;,
+  &quot;(?&lt;type&gt;.*)&quot;,
+  &quot;)?&quot;)
+(job.rematch2 &lt;- rematch2::bind_re_match(sacct.df, JobID, job.pat))
+#&gt;                        position              JobID      job task task1
+#&gt; 1 chr10:213,054,000-213,055,000        13937810_25 13937810   25      
+#&gt; 2          chrM:111,000-222,000  13937810_25.batch 13937810   25      
+#&gt; 3           this will not match 13937810_25.extern 13937810   25      
+#&gt; 4                          &lt;NA&gt;     14022192_[1-3] 14022192          1
+#&gt; 5     chr1:110-111 chr2:220-222       14022204_[4] 14022204          4
+#&gt;   taskN   type
+#&gt; 1             
+#&gt; 2        batch
+#&gt; 3       extern
+#&gt; 4     3       
+#&gt; 5
+
+pos.namedCapture &lt;- namedCapture::df_match_variable(
+  job.namedCapture, position=list(
+    chrom=&quot;chr.*?&quot;,
+    &quot;:&quot;,
+    chromStart=&quot;.*?&quot;, to.int,
+    &quot;-&quot;,
+    chromEnd=&quot;[0-9,]*&quot;, to.int))
+str(pos.namedCapture)
+#&gt; &#39;data.frame&#39;:    5 obs. of  10 variables:
+#&gt;  $ position           : chr  &quot;chr10:213,054,000-213,055,000&quot; &quot;chrM:111,000-222,000&quot; &quot;this will not match&quot; NA ...
+#&gt;  $ JobID              : chr  &quot;13937810_25&quot; &quot;13937810_25.batch&quot; &quot;13937810_25.extern&quot; &quot;14022192_[1-3]&quot; ...
+#&gt;  $ JobID.job          : int  13937810 13937810 13937810 14022192 14022204
+#&gt;  $ JobID.task         : int  25 25 25 NA NA
+#&gt;  $ JobID.task1        : int  NA NA NA 1 4
+#&gt;  $ JobID.taskN        : int  NA NA NA 3 NA
+#&gt;  $ JobID.type         : chr  &quot;&quot; &quot;batch&quot; &quot;extern&quot; &quot;&quot; ...
+#&gt;  $ position.chrom     : chr  &quot;chr10&quot; &quot;chrM&quot; NA NA ...
+#&gt;  $ position.chromStart: int  213054000 111000 NA NA 110
+#&gt;  $ position.chromEnd  : int  213055000 222000 NA NA 111
+
+pos.rematch2 &lt;- rematch2::bind_re_match(
+  job.rematch2,  position, paste0(
+    &quot;(?&lt;chrom&gt;chr.*?)&quot;,
+    &quot;:&quot;,
+    &quot;(?&lt;chromStart&gt;.*?)&quot;, 
+    &quot;-&quot;,
+    &quot;(?&lt;chromEnd&gt;[0-9,]*)&quot;))
+str(pos.rematch2)
+#&gt; &#39;data.frame&#39;:    5 obs. of  10 variables:
+#&gt;  $ position  : chr  &quot;chr10:213,054,000-213,055,000&quot; &quot;chrM:111,000-222,000&quot; &quot;this will not match&quot; NA ...
+#&gt;  $ JobID     : chr  &quot;13937810_25&quot; &quot;13937810_25.batch&quot; &quot;13937810_25.extern&quot; &quot;14022192_[1-3]&quot; ...
+#&gt;  $ job       : chr  &quot;13937810&quot; &quot;13937810&quot; &quot;13937810&quot; &quot;14022192&quot; ...
+#&gt;  $ task      : chr  &quot;25&quot; &quot;25&quot; &quot;25&quot; &quot;&quot; ...
+#&gt;  $ task1     : chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;1&quot; ...
+#&gt;  $ taskN     : chr  &quot;&quot; &quot;&quot; &quot;&quot; &quot;3&quot; ...
+#&gt;  $ type      : chr  &quot;&quot; &quot;batch&quot; &quot;extern&quot; &quot;&quot; ...
+#&gt;  $ chrom     : chr  &quot;chr10&quot; &quot;chrM&quot; NA NA ...
+#&gt;  $ chromStart: chr  &quot;213,054,000&quot; &quot;111,000&quot; NA NA ...
+#&gt;  $ chromEnd  : chr  &quot;213,055,000&quot; &quot;222,000&quot; NA NA ...
+</code></pre>
+
+<p>The main difference in syntax is that group names are specified in
+the regular expression string literal for rematch2, whereas group
+names are specified as R argument names for namedCapture
+A difference in the result is that all columns of <code>pos.rematch2</code> are
+character, whereas some columns of <code>pos.namedCapture</code> have already
+been converted to integer. Using <code>rematch2</code> type conversion may be
+accomplished as a post-processing step:</p>
+
+<pre><code class="r">converted.rematch2 &lt;- transform(
+  pos.rematch2,
+  JobID.job=to.int(job),
+  JobID.task1=to.int(task1),
+  JobID.taskN=to.int(taskN),
+  JobID.task=to.int(task),
+  JobID.type=type,
+  position.chrom=chrom,
+  position.chromStart=to.int(chromStart),
+  position.chromEnd=to.int(chromEnd),
+  stringsAsFactors=FALSE)
+some.rematch2 &lt;- converted.rematch2[, names(pos.namedCapture)]
+identical(some.rematch2, pos.namedCapture)
+#&gt; [1] TRUE
+</code></pre>
+
+<p>Exercise for the reader: convert all the <code>rematch2::bind_re_match</code>
+calls in this section to <code>tidyr::extract</code> calls.</p>
 
 </body>
 

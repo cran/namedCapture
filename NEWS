@@ -1,3 +1,44 @@
+2020.3.2
+
+Use stringsAsFactors=TRUE in test-CRAN-df.
+
+2019.8.13 PR#13 R Journal reviews
+
+namedCapture.engine -> engine.
+
+CONTRIBUTING.org
+
+2019.8.9 PR#12
+
+df_match_variable(subject.df, column=list(nomatch.error=TRUE)).
+
+2019.8.8 PR#11
+
+subject.vec is now first arg of str_*_variable; subject is no longer
+passed to variable_args_list. Usage is same as before but docs should
+be easier to understand.
+
+2019.8.7
+
+str_match_variable(nomatch.error=TRUE) means to stop with an error if
+any subjects do not match -- error message shows pattern and subjects
+which do not match. This is fully backwards compatible since arguments
+with names that contain dots resulted in an error (group names can not
+contain dots).
+
+cbind in for loop used in df_match_variable for speed.
+
+tried parallelizing df_match_variable over subject columns using
+future, but no significant speedups.
+
+tried re2_match(parallel=TRUE) but no significant speedups.
+
+show generated pattern in stop_for_names.
+
+document/export variable_args_list for viewing generated pattern.
+
+bugfix for df_match_variable with only one group = name.
+
 2019.7.30
 
 namedCapture.engine() only used for getting, not setting, option.

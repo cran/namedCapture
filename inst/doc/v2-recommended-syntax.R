@@ -11,16 +11,19 @@ subject.vec <- c(
   "this will not match",
   NA, # neither will this.
   "chr1:110-111 chr2:220-222") # two possible matches.
-chr.pos.pattern <-
-  "(?P<chrom>chr.*?):(?P<chromStart>[0-9,]+)(?:-(?P<chromEnd>[0-9,]*))?"
+## Single line pattern, not so easy to read.
+single.line.pattern <-
+  "(?P<chrom>chr.*?):(?P<chromStart>[0-9,]+)(?:-(?P<chromEnd>[0-9,]+))?"
+## Same pattern defined over multiple lines, easier to read.
 chr.pos.pattern <- paste0(
   "(?P<chrom>chr.*?)",
   ":",
   "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?P<chromEnd>[0-9,]*)",
+    "(?P<chromEnd>[0-9,]+)",
   ")?")
+identical(single.line.pattern, chr.pos.pattern)
 namedCapture::str_match_named(subject.vec, chr.pos.pattern)
 
 ## ------------------------------------------------------------------------
@@ -79,6 +82,17 @@ namedCapture::str_match_variable(
     "-",
     chromEnd=pos.pattern
   ), "?")
+
+## ------------------------------------------------------------------------
+(L <- namedCapture::variable_args_list(
+  chrom="chr.*?",
+  ":",
+  chromStart=pos.pattern,
+  list(
+    "-",
+    chromEnd=pos.pattern
+  ), "?"))
+identical(L$pattern, single.line.pattern)
 
 ## ------------------------------------------------------------------------
 trackDb.txt.gz <- system.file(
