@@ -1,10 +1,10 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## First define data.
 (sacct.df <- data.frame(
   position=c(
@@ -112,7 +112,7 @@ long.list$tidyr$JobID.type <- ifelse(
 with(long.list, identical(tidyr, namedCapture))
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ## First define data.
 (sacct.df <- data.frame(
   position=c(
@@ -164,7 +164,7 @@ short.list$tidyr$JobID.type <- ifelse(
 with(short.list, identical(tidyr, namedCapture))
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 range.list <- list(
   "\\[",
   task1="[0-9]+", as.integer,
@@ -238,7 +238,7 @@ pos.rematch2 <- rematch2::bind_re_match(
 str(pos.rematch2)
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 converted.rematch2 <- transform(
   pos.rematch2,
   JobID.job=to.int(job),

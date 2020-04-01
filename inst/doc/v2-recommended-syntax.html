@@ -378,11 +378,11 @@ with the variable number of arguments that specify the pattern:</p>
 #&gt; $fun.list
 #&gt; $fun.list$chromStart
 #&gt; function(x)as.integer(gsub(&quot;[^0-9]&quot;, &quot;&quot;, x))
-#&gt; &lt;bytecode: 0xb63cc78&gt;
+#&gt; &lt;bytecode: 0x55a8df4095e0&gt;
 #&gt; 
 #&gt; $fun.list$chromEnd
 #&gt; function(x)as.integer(gsub(&quot;[^0-9]&quot;, &quot;&quot;, x))
-#&gt; &lt;bytecode: 0xb63cc78&gt;
+#&gt; &lt;bytecode: 0x55a8df4095e0&gt;
 #&gt; 
 #&gt; 
 #&gt; $pattern
@@ -718,18 +718,18 @@ sacct.dt &lt;- data.table(sacct.df)
     minutes=&quot;[0-9]+&quot;, as.integer,
     &quot;:&quot;,
     seconds=&quot;[0-9]+&quot;, as.integer)))
-#&gt;     Elapsed              JobID JobID.job JobID.task JobID.task1
-#&gt; 1: 07:04:42        13937810_25  13937810         25          NA
-#&gt; 2: 07:04:42  13937810_25.batch  13937810         25          NA
-#&gt; 3: 07:04:49 13937810_25.extern  13937810         25          NA
-#&gt; 4: 00:00:00     14022192_[1-3]  14022192         NA           1
-#&gt; 5: 00:00:00       14022204_[4]  14022204         NA           4
-#&gt;    JobID.taskN JobID.type Elapsed.hours Elapsed.minutes Elapsed.seconds
-#&gt; 1:          NA                        7               4              42
-#&gt; 2:          NA      batch             7               4              42
-#&gt; 3:          NA     extern             7               4              49
-#&gt; 4:           3                        0               0               0
-#&gt; 5:          NA                        0               0               0
+#&gt;     Elapsed              JobID JobID.job JobID.task JobID.task1 JobID.taskN
+#&gt; 1: 07:04:42        13937810_25  13937810         25          NA          NA
+#&gt; 2: 07:04:42  13937810_25.batch  13937810         25          NA          NA
+#&gt; 3: 07:04:49 13937810_25.extern  13937810         25          NA          NA
+#&gt; 4: 00:00:00     14022192_[1-3]  14022192         NA           1           3
+#&gt; 5: 00:00:00       14022204_[4]  14022204         NA           4          NA
+#&gt;    JobID.type Elapsed.hours Elapsed.minutes Elapsed.seconds
+#&gt; 1:                        7               4              42
+#&gt; 2:      batch             7               4              42
+#&gt; 3:     extern             7               4              49
+#&gt; 4:                        0               0               0
+#&gt; 5:                        0               0               0
 </code></pre>
 
 </body>
